@@ -136,8 +136,18 @@ For urgent cases outside of business hours, please email us or send a message vi
 // Build two-row keyboard (4 buttons per row)
 function getMainMenu() {
     const keyboard = [
-        [ { text: BUTTONS[0].text, callback_data: BUTTONS[0].id }, { text: BUTTONS[1].text, callback_data: BUTTONS[1].id }, { text: BUTTONS[2].text, callback_data: BUTTONS[2].id }, { text: BUTTONS[3].text, callback_data: BUTTONS[3].id } ],
-        [ { text: BUTTONS[4].text, callback_data: BUTTONS[4].id }, { text: BUTTONS[5].text, callback_data: BUTTONS[5].id }, { text: BUTTONS[6].text, callback_data: BUTTONS[6].id }, { text: BUTTONS[7].text, callback_data: BUTTONS[7].id } ]
+        [
+            { text: BUTTONS[0].text, callback_data: BUTTONS[0].id },
+            { text: BUTTONS[1].text, callback_data: BUTTONS[1].id },
+            { text: BUTTONS[2].text, callback_data: BUTTONS[2].id },
+            { text: BUTTONS[3].text, callback_data: BUTTONS[3].id }
+        ],
+        [
+            { text: BUTTONS[4].text, callback_data: BUTTONS[4].id },
+            { text: BUTTONS[5].text, callback_data: BUTTONS[5].id },
+            { text: BUTTONS[6].text, callback_data: BUTTONS[6].id },
+            { text: BUTTONS[7].text, callback_data: BUTTONS[7].id }
+        ]
     ];
     return { inline_keyboard: keyboard };
 }
@@ -156,7 +166,7 @@ export default {
                 const update = await request.json();
                 
                 // Handle /start command - show menu
-                if (update.message?.text === '/start') {
+                if (update.message && update.message.text === '/start') {
                     const chatId = update.message.chat.id;
                     const userName = update.message.from.first_name;
                     
@@ -174,17 +184,14 @@ Our services include applying for asset freezing injunctions, cross-border fund 
 ⚠️ Important Reminder: As time passes, the transfer and mixing of cryptocurrencies will make recovering your assets exponentially more difficult. We strongly advise you to contact us as soon as you discover assets have been stolen to secure the best possible recovery window.
 
 Please select an option below for more details:`,
-                            reply_markup: getMainMenu(),
-                            parse_mode: "HTML"
+                            reply_markup: getMainMenu()
                         })
                     });
                 }
-                
                 // Handle button clicks
                 else if (update.callback_query) {
                     const query = update.callback_query;
-                    const buttonId = query.data;
-                    const button = BUTTONS.find(b => b.id === buttonId);
+                    const button = BUTTONS.find(b => b.id === query.data);
                     
                     if (button) {
                         await fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
@@ -202,12 +209,13 @@ Please select an option below for more details:`,
                     await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ callback_query_id: query.id })
+                        body: JSON.stringify({
+                            callback_query_id: query.id
+                        })
                     });
                 }
-                
                 // Handle regular messages
-                else if (update.message?.text) {
+                else if (update.message && update.message.text) {
                     const msg = update.message;
                     
                     // Auto-reply to user
