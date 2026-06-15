@@ -1,4 +1,4 @@
-// Falcon Team Bot - Professional US English Version with 8 Buttons
+// Falcon Team Bot - Mobile Optimized 2-3-3 Layout
 
 const BUTTONS = [
     { 
@@ -133,17 +133,22 @@ For urgent cases outside of business hours, please email us or send a message vi
     }
 ];
 
-// Build two-row keyboard (4 buttons per row)
+// Mobile-optimized keyboard layout: 2-3-3
 function getMainMenu() {
     const keyboard = [
+        // Row 1: 2 buttons
         [
             { text: BUTTONS[0].text, callback_data: BUTTONS[0].id },
-            { text: BUTTONS[1].text, callback_data: BUTTONS[1].id },
-            { text: BUTTONS[2].text, callback_data: BUTTONS[2].id },
-            { text: BUTTONS[3].text, callback_data: BUTTONS[3].id }
+            { text: BUTTONS[1].text, callback_data: BUTTONS[1].id }
         ],
+        // Row 2: 3 buttons
         [
-            { text: BUTTONS[4].text, callback_data: BUTTONS[4].id },
+            { text: BUTTONS[2].text, callback_data: BUTTONS[2].id },
+            { text: BUTTONS[3].text, callback_data: BUTTONS[3].id },
+            { text: BUTTONS[4].text, callback_data: BUTTONS[4].id }
+        ],
+        // Row 3: 3 buttons
+        [
             { text: BUTTONS[5].text, callback_data: BUTTONS[5].id },
             { text: BUTTONS[6].text, callback_data: BUTTONS[6].id },
             { text: BUTTONS[7].text, callback_data: BUTTONS[7].id }
