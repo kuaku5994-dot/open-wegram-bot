@@ -1,61 +1,47 @@
 export default {
     async fetch(request, env) {
+        const url = new URL(request.url);
         const token = env.BOT_TOKEN;
-        
-        // GET 请求：测试用
+
+        // 处理 GET 请求
         if (request.method === 'GET') {
             return new Response('Falcon Bot is running! Send /start on Telegram.');
         }
-        
-        // POST 请求：接收任何路径的 Telegram 消息
+
+        // 处理 POST 请求 (Telegram Webhook)
         if (request.method === 'POST') {
             try {
                 const update = await request.json();
-                
-                // 获取消息信息
                 const chatId = update.message?.chat?.id;
-                const messageText = update.message?.text;
-                const userName = update.message?.from?.first_name;
-                
-                if (chatId && messageText) {
-                    let replyText = '';
-                    
-                    if (messageText === '/start') {
-                        replyText = `👋 Welcome to Falcon Team, ${userName}!\n\nPlease select an option:`;
-                    } else {
-                        replyText = `✅ Message received: "${messageText}"\n\nOur team will get back to you soon.`;
-                    }
-                    
-                    // 发送回复
-                    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                const text = update.message?.text;
+
+                // 如果有消息，就回复
+                if (chatId && text) {
+                    // 调用 Telegram API 发送消息
+                    const apiUrl = `https://api.telegram.org/bot${token}/sendMessage`;
+                    const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             chat_id: chatId,
-                            text: replyText
+                            text: `✅ 收到消息: ${text}`
                         })
                     });
+
+                    const result = await response.json();
+                    // 如果发送失败，记录错误（可选）
+                    if (!result.ok) {
+                        console.error('Telegram API Error:', result.description);
+                    }
                 }
-                
-                // 处理按钮点击（暂时先不加菜单）
-                if (update.callback_query) {
-                    const query = update.callback_query;
-                    await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            callback_query_id: query.id,
-                            text: 'Menu coming soon!'
-                        })
-                    });
-                }
-                
+
                 return new Response('OK');
-            } catch (err) {
-                return new Response('Error: ' + err.message, { status: 500 });
+            } catch (error) {
+                console.error('Worker Error:', error.message);
+                return new Response('Error: ' + error.message, { status: 500 });
             }
         }
-        
+
         return new Response('Not Found', { status: 404 });
     }
 };
